@@ -10,7 +10,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(width, height);
 
 const mainCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-mainCamera.position.z = 5;
+mainCamera.position.z = -10;
+mainCamera.lookAt(0, 0, 0);
 
 const scene = new Scene(mainCamera);
 scene.init();
@@ -18,7 +19,7 @@ scene.init();
 
 function tick()
 {
-  scene.update();
+  // scene.update();
   renderer.render(scene, mainCamera);
   requestAnimationFrame(tick);
 }
