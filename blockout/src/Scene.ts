@@ -53,10 +53,11 @@ export default class Scene extends THREE.Scene {
         const axes = new THREE.AxesHelper(2);
         this.add(axes);
 
-        const tempArr = create3DArray<number>(this.width, this.height, 2, 0);
-        tempArr[0][0][0] = 1;
-        tempArr[1][1][0] = 1;
-        tempArr[0][1][1] = 1;
+        // const tempArr = create3DArray<number>(this.width, this.height, 2, 0);
+        // tempArr[0][0][0] = 1;
+        // tempArr[1][1][0] = 1;
+        // tempArr[0][1][1] = 1;
+        const tempArr = this.blockManager.getBlockArray();
 
         this.buildCubeBasedOnGrid(tempArr, true);
     }

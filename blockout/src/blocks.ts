@@ -26,15 +26,20 @@ export default class block {
 
     public getBlockArray(): number[][][]
     {
-        const keysLen = Object.keys(this.listOfAvailableBlocks).length;
-        const idx = Math.floor(Math.random() * keysLen) + 1;
-        console.log(idx);
-        return undefined as any;
+        // const keysLen = Object.keys(this.listOfAvailableBlocks).length;
+        // const idx = Math.floor(Math.random() * keysLen) + 1;
+        // console.log(idx);
+        // return undefined as any;
+        this.createHardcodedBlocks();
+        return this.listOfAvailableBlocks[1];
     }
 
     private createHardcodedBlocks()
     {
-        // this.listOfAvailableBlocks;
+        this.listOfAvailableBlocks[1][0][0][0] = 1;
+        this.listOfAvailableBlocks[1][1][0][0] = 1;
+        this.listOfAvailableBlocks[1][0][1][0] = 1;
+        this.listOfAvailableBlocks[1][0][2][0] = 1;
     }
     
 
