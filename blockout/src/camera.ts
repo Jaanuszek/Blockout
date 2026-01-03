@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Scene from './Scene';
-
 export default class Camera extends THREE.PerspectiveCamera {
     private renderer: THREE.WebGLRenderer;
     private resizeHandler: () => void;
@@ -105,10 +104,6 @@ export default class Camera extends THREE.PerspectiveCamera {
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.quaternion);
 
-        if (this.keys['KeyW']) velocity.add(forward);
-        if (this.keys['KeyS']) velocity.sub(forward);
-        if (this.keys['KeyA']) velocity.sub(right);
-        if (this.keys['KeyD']) velocity.add(right);
         if (this.keys['Space']) velocity.y += 1;
         if (this.keys['ControlLeft'] || this.keys['ControlRight']) velocity.y -= 1;
 
@@ -126,6 +121,60 @@ export default class Camera extends THREE.PerspectiveCamera {
         document.removeEventListener('mousemove', this.mouseHandler);
         window.removeEventListener('keydown', this.keyDownHandler);
         window.removeEventListener('keyup', this.keyUpHandler);
+    }
+
+    private calculateRightVec()
+    {
+        return new THREE.Vector3(1, 0, 0).applyQuaternion(this.quaternion);
+    }
+
+    private calculateForwardVec()
+    {
+        return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
+    }
+
+    private addVectorToPos(velocity: THREE.Vector3, delta: number)
+    {
+        if (velocity.lengthSq() > 0) {
+            velocity.normalize();
+            this.position.addScaledVector(velocity, this.moveSpeed * delta);
+        }
+    }
+
+    public moveLeft(delta: number)
+    {
+        const velocity = new THREE.Vector3();
+        const right = this.calculateRightVec();
+
+        velocity.sub(right);
+        this.addVectorToPos(velocity, delta);
+    }
+
+    public moveRight(delta: number)
+    {
+        const velocity = new THREE.Vector3();
+        const right = this.calculateRightVec();
+
+        velocity.add(right);
+        this.addVectorToPos(velocity, delta);
+    }
+
+    public moveUp(delta: number)
+    {
+        const velocity = new THREE.Vector3();
+        const forward = this.calculateForwardVec();
+
+        velocity.add(forward);
+        this.addVectorToPos(velocity, delta);
+    }
+
+    public moveDown(delta: number)
+    {
+        const velocity = new THREE.Vector3();
+        const forward = this.calculateForwardVec();
+
+        velocity.sub(forward);
+        this.addVectorToPos(velocity, delta);
     }
 
 }
