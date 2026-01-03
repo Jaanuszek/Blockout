@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import Scene from './Scene';
 export default class Camera extends THREE.PerspectiveCamera {
     private renderer: THREE.WebGLRenderer;
     private resizeHandler: () => void;
@@ -95,22 +94,6 @@ export default class Camera extends THREE.PerspectiveCamera {
     private onKeyUp(e: KeyboardEvent)
     {
         this.keys[e.code] = false;
-    }
-
-    public update(delta: number)
-    {
-        // movement vector in local space
-        const velocity = new THREE.Vector3();
-        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
-        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.quaternion);
-
-        if (this.keys['Space']) velocity.y += 1;
-        if (this.keys['ControlLeft'] || this.keys['ControlRight']) velocity.y -= 1;
-
-        if (velocity.lengthSq() > 0) {
-            velocity.normalize();
-            this.position.addScaledVector(velocity, this.moveSpeed * delta);
-        }
     }
 
     public dispose()

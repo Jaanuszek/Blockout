@@ -1,7 +1,4 @@
-import * as THREE from 'three';
-
-export function create3DArray<T>(x: number, y: number, z: number, initial: T): T[][][]
-{
+export function create3DArray<T>(x: number, y: number, z: number, initial: T): T[][][] {
     return Array.from({ length: x }, () =>
         Array.from({ length: y }, () =>
             Array.from({ length: z }, () => initial)
@@ -9,38 +6,27 @@ export function create3DArray<T>(x: number, y: number, z: number, initial: T): T
     );
 }
 
-export default class block {
-    private data: number[][][];
-    private listOfAvailableBlocks: { [key: number] : number[][][]} = {};
+export default class BlockManager {
+    private listOfAvailableBlocks: { [key: number]: number[][][] } = {};
 
-    constructor(width: number, height: number, depth: number)
-    {
-        this.data = create3DArray<number>(width, height, depth, 0);
-
-        for (let i =1; i <= 21; i++)
-        {
+    constructor(width: number, height: number, depth: number) {
+        for (let i = 1; i <= 21; i++) {
             this.listOfAvailableBlocks[i] = create3DArray<number>(width, height, depth, 0);
         }
-        // this.getBlockArray();
+        this.createHardcodedBlocks();
     }
 
-    public getBlockArray(idx: number): number[][][]
-    {
-        this.createHardcodedBlocks();
+    public getBlockArray(idx: number): number[][][] {
         return this.listOfAvailableBlocks[idx];
     }
 
-    public getRandomBlockArray(): number[][][]
-    {
+    public getRandomBlockArray(): number[][][] {
         const keysLen = Object.keys(this.listOfAvailableBlocks).length;
-        // const randIdx = Math.floor(Math.random() * keysLen) + 1;
-        const randIdx = 17;
-
+        const randIdx = Math.floor(Math.random() * keysLen) + 1;
         return this.listOfAvailableBlocks[randIdx];
     }
 
-    private createHardcodedBlocks()
-    {
+    private createHardcodedBlocks() {
         // block1
         this.listOfAvailableBlocks[1][0][0][0] = 1;
         this.listOfAvailableBlocks[1][1][0][0] = 1;
