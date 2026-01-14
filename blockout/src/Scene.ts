@@ -67,7 +67,7 @@ export default class Scene extends THREE.Scene {
 
     init() {
         this.scoreUI.initialize();
-        this.createMainScene(this.width, this.height, this.depth, this.cellSize);
+        this.createMainScene();
     }
 
     update(delta: number) {
@@ -437,7 +437,7 @@ export default class Scene extends THREE.Scene {
         this.remove(this.gridLines!);
         this.recalculateStartIndex();
         this.grid = new Grid(this.width, this.height, this.depth, this.cellSize, this.ox, this.oy, this.oz);
-        this.createMainScene(this.width, this.height, this.depth, this.cellSize);
+        this.createMainScene();
         this.gameState.setMoveTime(this.settingsUI.getSpeed());
         this.settingsUI.reloadNeeded = false;
     }
