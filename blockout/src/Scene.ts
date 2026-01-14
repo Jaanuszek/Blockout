@@ -3,25 +3,30 @@ import BlockManager from './blocks';
 import { Grid } from './Grid';
 import { GameState } from './GameState';
 import { ScoreUI } from './ScoreUI';
+import { SettingsUI } from './SettingsUI';
 import { RotationController } from './RotationController';
 import { BlockRenderer } from './BlockRenderer';
 
 export default class Scene extends THREE.Scene {
     private readonly camera: THREE.PerspectiveCamera;
-    private readonly width: number;
-    private readonly height: number;
-    private readonly depth: number;
+    private  width: number;
+    private  height: number;
+    private  depth: number;
     private readonly cellSize: number = 1;
-    private readonly ox: number;
-    private readonly oy: number;
-    private readonly oz: number;
+    private readonly cx: number = 0.0;
+    private readonly cy: number = 0.0;
+    private ox: number;
+    private oy: number;
+    private oz: number;
 
     private movingObjects: THREE.Object3D[] = [];
     private settledObjects: THREE.Object3D[] = [];
     
-    private readonly grid: Grid;
+    private grid: Grid;
+    private gridLines: THREE.LineSegments | null = null;
     private readonly gameState: GameState;
     private readonly scoreUI: ScoreUI;
+    private readonly settingsUI: SettingsUI = new SettingsUI();
     private readonly rotationController: RotationController;
     private readonly blockRenderer: BlockRenderer;
     private readonly blockManager: BlockManager;
@@ -34,19 +39,21 @@ export default class Scene extends THREE.Scene {
     constructor(camera: THREE.PerspectiveCamera) {
         super();
         this.camera = camera;
-        this.width = 5;
-        this.height = 5;
-        this.depth = 10;
+
+        this.settingsUI.initialize();
+
+        this.width = this.settingsUI.getWidth();
+        this.height = this.settingsUI.getHeight();
+        this.depth = this.settingsUI.getDepth();
         this.cellSize = 1;
 
-        const cx = 0.0;
-        const cy = 0.0;
-        this.ox = cx - (this.width * this.cellSize) / 2.0 + this.cellSize / 2.0;
-        this.oy = cy - (this.height * this.cellSize) / 2.0 + this.cellSize / 2.0;
+        this.ox = this.cx - (this.width * this.cellSize) / 2.0 + this.cellSize / 2.0;
+        this.oy = this.cy - (this.height * this.cellSize) / 2.0 + this.cellSize / 2.0;
         this.oz = -this.cellSize / 2.0;
 
         this.grid = new Grid(this.width, this.height, this.depth, this.cellSize, this.ox, this.oy, this.oz);
         this.gameState = new GameState();
+        this.gameState.setMoveTime(this.settingsUI.getSpeed());
         this.scoreUI = new ScoreUI();
         this.rotationController = new RotationController();
         this.blockRenderer = new BlockRenderer();
@@ -61,11 +68,12 @@ export default class Scene extends THREE.Scene {
     init() {
         this.scoreUI.initialize();
         this.createMainScene(this.width, this.height, this.depth, this.cellSize);
-        const axes = new THREE.AxesHelper(2);
-        this.add(axes);
     }
 
     update(delta: number) {
+        if(this.settingsUI.reloadNeeded) {
+            this.reloadGame();
+        }
         if (!this.gameState.isGameRunning()) {
             this.generateNextBlock();
             this.gameState.startGame();
@@ -223,32 +231,32 @@ export default class Scene extends THREE.Scene {
         this.movingObjects = newMovingObjects;
     }
 
-    createMainScene(width: number, height: number, depth: number, cellSize: number = 1) {
-        depth = depth + 1;
+    private createMainScene() {
+        let depth = this.depth + 1;
         const material = new THREE.LineBasicMaterial({ color: 0x00aa00 });
         const verts: number[] = [];
 
-        for (let y = 0; y <= height; y++) {
+        for (let y = 0; y <= this.height; y++) {
             for (let z = 0; z <= depth; z++) {
-                if (z === 0 && y > 0 && y < height) continue;
-                if (y === 0 || z === 0 || y === height || z === depth) {
-                    verts.push(0, y, z, width, y, z);
+                if (z === 0 && y > 0 && y < this.height) continue;
+                if (y === 0 || z === 0 || y === this.height || z === depth) {
+                    verts.push(0, y, z, this.width, y, z);
                 }
             }
         }
 
-        for (let x = 0; x <= width; x++) {
+        for (let x = 0; x <= this.width; x++) {
             for (let z = 0; z <= depth; z++) {
-                if (z === 0 && x > 0 && x < width) continue;
-                if (z === 0 || z === depth || x === 0 || x === width) {
-                    verts.push(x, 0, z, x, height, z);
+                if (z === 0 && x > 0 && x < this.width) continue;
+                if (z === 0 || z === depth || x === 0 || x === this.width) {
+                    verts.push(x, 0, z, x, this.height, z);
                 }
             }
         }
 
-        for (let x = 0; x <= width; x++) {
-            for (let y = 0; y <= height; y++) {
-                if (x === 0 || y === 0 || y === height || x === width) {
+        for (let x = 0; x <= this.width; x++) {
+            for (let y = 0; y <= this.height; y++) {
+                if (x === 0 || y === 0 || y === this.height || x === this.width) {
                     verts.push(x, y, 0, x, y, depth);
                 }
             }
@@ -258,14 +266,15 @@ export default class Scene extends THREE.Scene {
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
 
         const gridLines = new THREE.LineSegments(geometry, material);
-        gridLines.scale.set(cellSize, cellSize, cellSize);
+        gridLines.scale.set(this.cellSize, this.cellSize, this.cellSize);
         gridLines.position.set(
-            (width * cellSize) / 2.0,
-            -(height * cellSize) / 2.0,
+            (this.width * this.cellSize) / 2.0,
+            -(this.height * this.cellSize) / 2.0,
             0.0
         );
         gridLines.rotateY(Math.PI);
-        this.add(gridLines);
+        this.gridLines = gridLines;
+        this.add(this.gridLines);
     }
 
     private hardDrop(): void {
@@ -412,5 +421,24 @@ export default class Scene extends THREE.Scene {
     private onKeyUp(e: KeyboardEvent): void {
         this.moveKeys[e.code] = false;
         this.moveProcessed[e.code] = false;
+    }
+
+    private recalculateStartIndex(): void {
+        this.ox = this.cx - (this.width * this.cellSize) / 2.0 + this.cellSize / 2.0;
+        this.oy = this.cy - (this.height * this.cellSize) / 2.0 + this.cellSize / 2.0;
+        this.oz = -this.cellSize / 2.0;
+    }
+
+    private reloadGame(): void {
+        this.resetGame();
+        this.width = this.settingsUI.getWidth();
+        this.height = this.settingsUI.getHeight();
+        this.depth = this.settingsUI.getDepth();
+        this.remove(this.gridLines!);
+        this.recalculateStartIndex();
+        this.grid = new Grid(this.width, this.height, this.depth, this.cellSize, this.ox, this.oy, this.oz);
+        this.createMainScene(this.width, this.height, this.depth, this.cellSize);
+        this.gameState.setMoveTime(this.settingsUI.getSpeed());
+        this.settingsUI.reloadNeeded = false;
     }
 }

@@ -23,6 +23,7 @@ export default class BlockManager {
     public getRandomBlockArray(): number[][][] {
         const keysLen = Object.keys(this.listOfAvailableBlocks).length;
         const randIdx = Math.floor(Math.random() * keysLen) + 1;
+        // const randIdx = 17; //debug
         return this.listOfAvailableBlocks[randIdx];
     }
 

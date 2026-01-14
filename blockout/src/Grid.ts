@@ -54,8 +54,8 @@ export class Grid {
     }
 
     public isOccupied(x: number, y: number, z: number): boolean {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height || z < 0 || z > this.depth) {
-            return true; // Out of bounds counts as occupied
+        if (!this.isInBounds(x, y, z)) {
+            return true; // poza siatką
         }
         return this.data[x]?.[y]?.[z] === 1;
     }

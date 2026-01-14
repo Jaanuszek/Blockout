@@ -3,7 +3,7 @@ export class GameState {
     private isRunning: boolean = false;
     private movingEnabled: boolean = true;
     private canGenerateNext: boolean = false;
-    private readonly moveTime: number = 0.5;
+    private moveTime: number = 0.5;
     private currentStep: number = 0;
     private stepTimer: number = 0.0;
 
@@ -53,6 +53,10 @@ export class GameState {
 
     public getMoveTime(): number {
         return this.moveTime;
+    }
+
+    public setMoveTime(value: number): void {
+        this.moveTime = value;
     }
 
     public getCurrentStep(): number {
